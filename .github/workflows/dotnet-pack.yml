@@ -1,0 +1,30 @@
+name: .NET Pack
+
+on:
+  push:
+    tags: [ "v[0-9]+.[0-9]+.[0-9]+" ]
+
+jobs:
+  build:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Add NuGet Source
+      run: dotnet nuget add source --username unimz --password ${{ secrets.PACKAGE }} --store-password-in-clear-text --name unimz "https://nuget.pkg.github.com/unimz/index.json"
+    - name: Build Solution
+      run: dotnet build --configuration Release --verbosity normal
+    - name: Pack NuGet
+      run: dotnet pack --configuration Release --output nuget --verbosity normal
+    - name: Push NuGet
+      run: dotnet nuget push nuget/*.nupkg --source unimz --api-key ${{ secrets.PACKAGE }}
+    - name: Create Release
+      env:
+        TAG: ${{ github.ref_name }}
+        GH_TOKEN: ${{ github.token }}
+      run: gh release create ${TAG} nuget/*.nupkg --title "UniMZ.PepPre ${TAG:1}" --notes ""

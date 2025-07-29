@@ -1,0 +1,25 @@
+name: .NET Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Add NuGet Source
+      run: dotnet nuget add source --username unimz --password ${{ secrets.PACKAGE }} --store-password-in-clear-text --name unimz "https://nuget.pkg.github.com/unimz/index.json"
+    - name: Restore Dependencies
+      run: dotnet restore
+    - name: Build Solution
+      run: dotnet build --no-restore
+    - name: Test Solution
+      run: dotnet test --no-build --verbosity normal
