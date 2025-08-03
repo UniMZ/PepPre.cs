@@ -10,4 +10,8 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="UniMZ.Core" Version="0.0.2"/>
+    </ItemGroup>
+
 </Project>
