@@ -59,4 +59,15 @@ public static partial class PepPre
         }
         return idx;
     }
+
+    public static Memory<Peak<double>>[] SlicePeak(Memory<Peak<double>>[] peak, int idx, double mz, double r)
+    {
+        peak = peak[idx..Math.Min(idx + 2, peak.Length)];
+        return peak.Select(ps => ps.QueryDelta(mz, r)).ToArray();
+    }
+
+    public static Memory<Peak<double>>[][] SlicePeak(Memory<Peak<double>>[] peak, int[] idx, double[] mz, double[] r)
+    {
+        return Enumerable.Range(0, idx.Length).Select(i => SlicePeak(peak, idx[i], mz[i], r[i])).ToArray();
+    }
 }
