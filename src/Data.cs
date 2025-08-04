@@ -37,4 +37,13 @@ public static partial class PepPre
         var ms2_ = df.Filter(df.Columns[type].ElementwiseEquals(ms2));
         return (ToMS1(ms1_), ToMS2(ms2_));
     }
+
+    public static MS1 PadMS1(MS1 ms1, int n)
+    {
+        var pre = Enumerable.Range(0, n).Select(i => int.MinValue + i);
+        var suf = Enumerable.Range(1, n).Select(i => int.MaxValue - n + i);
+        var id = pre.Concat(ms1.id).Concat(suf).ToArray();
+        var peak = new Memory<Peak<double>>[n].Concat(ms1.peak).Concat(new Memory<Peak<double>>[n]).ToArray();
+        return (id, peak);
+    }
 }
