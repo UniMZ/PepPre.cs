@@ -58,4 +58,26 @@ public class DataTest
         CollectionAssert.AreEqual(ms2.mz, idx2.Select(i => MZ[i]).ToArray());
         CollectionAssert.AreEqual(ms2.r, idx2.Select(i => R[i]).ToArray());
     }
+
+    [TestMethod]
+    public void TestPadMS1()
+    {
+        var df = BuildDataFrame();
+        var (ms1, _) = PepPre.ToMS(df);
+        const int n = 4;
+        ms1 = PepPre.PadMS1(ms1, n);
+        var idx = GetMS1();
+        CollectionAssert.AreEqual(Enumerable.Range(0, n).Select(i => int.MinValue + i).ToArray(), ms1.id[..n]);
+        CollectionAssert.AreEqual(idx.Select(i => ID[i]).ToArray(), ms1.id[n..^n]);
+        CollectionAssert.AreEqual(Enumerable.Range(1, n).Select(i => int.MaxValue - n + i).ToArray(), ms1.id[^n..]);
+        for (var i = 0; i < n; i++)
+        {
+            CollectionAssert.AreEqual(Array.Empty<Peak<double>>(), ms1.peak[i].ToArray());
+            CollectionAssert.AreEqual(Array.Empty<Peak<double>>(), ms1.peak[^(i + 1)].ToArray());
+        }
+        for (var i = 0; i < idx.Length; i++)
+        {
+            CollectionAssert.AreEqual(Peak[idx[i]].GetValues().ToArray(), ms1.peak[i + n].ToArray());
+        }
+    }
 }
