@@ -2,8 +2,6 @@
 
 using Microsoft.Data.Analysis;
 using UniMZ.Core;
-using MS1 = (int[] id, Memory<Core.Peak<double>>[] peak);
-using MS2 = (int[] id, Memory<Core.Peak<double>>[] peak, int[] pre, double[] mz, double[] r);
 
 public static partial class PepPre
 {
