@@ -94,4 +94,33 @@ public class DataTest
             Assert.IsTrue(idx[i] == ms1.id.Length - 1 || ms2.pre[i] < ms1.id[idx[i] + 1]);
         }
     }
+
+    [TestMethod]
+    public void TestSlicePeak()
+    {
+        var df = BuildDataFrame();
+        var (ms1, ms2) = PepPre.ToMS(df);
+        ms1 = PepPre.PadMS1(ms1, 4);
+        var idx = PepPre.MatchMS(ms1, ms2);
+        var ss = PepPre.SlicePeak(ms1.peak, idx, ms2.mz, ms2.r);
+        Peak<double>[][][] ans =
+        [
+            [[new Peak<double>(1.1, 1)], []],
+            [
+                [new Peak<double>(1.1, 1), new Peak<double>(1.2, 2)],
+                [new Peak<double>(1.2, 1), new Peak<double>(1.3, 2)]
+            ],
+            [[], []],
+            [[new Peak<double>(1.2, 1), new Peak<double>(1.3, 2)], []]
+        ];
+        Assert.AreEqual(ans.Length, ss.Length);
+        for (var i = 0; i < ss.Length; i++)
+        {
+            Assert.AreEqual(ans[i].Length, ss[i].Length);
+            for (var j = 0; j < ss[i].Length; j++)
+            {
+                CollectionAssert.AreEqual(ans[i][j], ss[i][j].ToArray());
+            }
+        }
+    }
 }
