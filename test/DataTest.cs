@@ -80,4 +80,18 @@ public class DataTest
             CollectionAssert.AreEqual(Peak[idx[i]].GetValues().ToArray(), ms1.peak[i + n].ToArray());
         }
     }
+
+    [TestMethod]
+    public void TestMatchMS()
+    {
+        var df = BuildDataFrame();
+        var (ms1, ms2) = PepPre.ToMS(df);
+        ms1 = PepPre.PadMS1(ms1, 4);
+        var idx = PepPre.MatchMS(ms1, ms2);
+        for (var i = 0; i < idx.Length; i++)
+        {
+            Assert.IsTrue(ms1.id[idx[i]] <= ms2.pre[i]);
+            Assert.IsTrue(idx[i] == ms1.id.Length - 1 || ms2.pre[i] < ms1.id[idx[i] + 1]);
+        }
+    }
 }

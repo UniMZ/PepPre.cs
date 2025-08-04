@@ -46,4 +46,17 @@ public static partial class PepPre
         var peak = new Memory<Peak<double>>[n].Concat(ms1.peak).Concat(new Memory<Peak<double>>[n]).ToArray();
         return (id, peak);
     }
+
+    // find the idx of ms1 for each ms2; return the previous ms1 if ms2.pre not found
+    public static int[] MatchMS(MS1 ms1, MS2 ms2)
+    {
+        var idx = new int[ms2.pre.Length];
+        var i = 0;
+        for (var j = 0; j < idx.Length; j++)
+        {
+            while (ms1.id[i] <= ms2.pre[j] && i < ms1.id.Length - 1) i++;
+            idx[j] = i - 1;
+        }
+        return idx;
+    }
 }
