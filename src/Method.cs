@@ -23,4 +23,29 @@ public static partial class PepPre
         }
         return ions[..i];
     }
+
+    // return an array of lists, where the i-th elements are constraints for the i-th peak, and the last element is for the virtual peak
+    public static List<(int i, int j, double mz)>[] BuildConstraints(Memory<Peak<double>> peak, Ion[] ion, double e,
+        IsotopePatternVector ipv)
+    {
+        var cs = Enumerable.Range(0, peak.Length + 1).Select(v => new List<(int i, int j, double mz)>()).ToArray();
+        for (var i = 0; i < ion.Length; i++)
+        {
+            var m = ipv.Mass(ion[i].M());
+            for (var j = 0; j < m.Length; j++)
+            {
+                var mz = m[j] / ion[i].Z + ion[i].MZ;
+                var idx = peak.ArgQueryNearest(mz);
+                if (peak.IsEmpty || Math.Abs(peak.Span[idx].MZ - mz) > e) // empty
+                {
+                    cs[^1].Add((i, j, mz));
+                }
+                else
+                {
+                    cs[idx].Add((i, j, mz));
+                }
+            }
+        }
+        return cs;
+    }
 }
