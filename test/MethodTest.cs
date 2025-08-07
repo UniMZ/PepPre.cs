@@ -60,6 +60,7 @@ public class MethodTest
                 if (i != cs.Length - 1)
                 {
                     Assert.IsTrue(Math.Abs(cs[i][j].mz - peak[i].MZ) / peak[i].MZ <= e);
+                    Assert.AreEqual(ipv.Abundance(ion[cs[i][j].i].M(), cs[i][j].j), cs[i][j].abu);
                 }
             }
         }
