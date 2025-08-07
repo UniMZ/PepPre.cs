@@ -65,4 +65,36 @@ public class MethodTest
             }
         }
     }
+
+    [TestMethod]
+    public void TestSolveProblem()
+    {
+        var ipv = PepPre.BuildIsotopePatternVector(5000, DefaultIsotopeTable.HCNOS,
+            PepPre.AverageFormulaPerAminoAcid(DefaultAminoAcidTable.All));
+        const double e = 1e-2;
+        Peak<double>[] peak =
+        [
+            new(1000, ipv.Abundance(2000, 0) * 200 + ipv.Abundance(3000, 0) * 100),
+            new(1000.34, ipv.Abundance(3000, 1) * 100),
+            new(1000.50, ipv.Abundance(2000, 1) * 200),
+            new(1000.67, ipv.Abundance(3000, 2) * 100),
+            new(1001, ipv.Abundance(2000, 2) * 200)
+        ];
+        Ion[] ion =
+        [
+            new(999, 1), new(999, 3), new(1000, 2), new(1000, 3), new(100.34, 3)
+        ];
+        var cs = PepPre.BuildConstraints(peak, ion, e, ipv);
+        var (ws, es) = PepPre.SolveProblem(peak, ion, cs);
+        Assert.IsTrue(Math.Abs(ws[0]) < 1e-4);
+        Assert.IsTrue(Math.Abs(ws[1]) < 1e-4);
+        Assert.IsTrue(Math.Abs(ws[2] - 200) < 1e-4);
+        Assert.IsTrue(Math.Abs(ws[3] - 100) < 1e-4);
+        Assert.IsTrue(Math.Abs(ws[4]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[0]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[1]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[2]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[3]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[4] - ipv.Abundance(3000, 3) * 100) < 1e-4);
+    }
 }

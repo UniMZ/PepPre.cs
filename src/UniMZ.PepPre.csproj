@@ -12,6 +12,7 @@
 
     <ItemGroup>
         <PackageReference Include="UniMZ.Core" Version="0.0.3"/>
+        <PackageReference Include="UniMZ.GLPK" Version="0.0.1"/>
     </ItemGroup>
 
 </Project>
