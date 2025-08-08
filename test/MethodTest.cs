@@ -119,4 +119,54 @@ public class MethodTest
         Assert.IsTrue(Math.Abs(es[3]) < 1e-4);
         Assert.IsTrue(Math.Abs(es[4] - ipv.Abundance(2000, 4) * 10) < 1e-4);
     }
+
+    [TestMethod]
+    public void TestSolveProblem3()
+    {
+        const double e = 1e-2;
+        Peak<double>[] peak =
+        [
+            new(1000, ipv.Abundance(2000, 0) * 200),
+            new(1000.50, ipv.Abundance(2000, 1) * 200 + ipv.Abundance(2000, 0) * 10),
+            new(1001, ipv.Abundance(2000, 2) * 200 + ipv.Abundance(2000, 1) * 10),
+            new(1001.5, ipv.Abundance(2000, 3) * 200 + ipv.Abundance(2000, 2) * 10),
+            new(1002, ipv.Abundance(2000, 4) * 200 + ipv.Abundance(2000, 3) * 10)
+        ];
+        Ion[] ion = [new(1000, 2), new(1000.5, 2), new(1001, 2)];
+        var cs = PepPre.BuildConstraints(peak, ion, e, ipv);
+        var (ws, es) = PepPre.SolveProblem(peak, ion, cs);
+        Assert.IsTrue(Math.Abs(ws[0] - 200) < 1e-4);
+        Assert.IsTrue(Math.Abs(ws[1] - 10) < 1e-4);
+        Assert.IsTrue(Math.Abs(ws[2]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[0]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[1]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[2]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[3]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[4]) < 1e-4);
+    }
+
+    [TestMethod]
+    public void TestSolveProblem4()
+    {
+        const double e = 1e-2;
+        Peak<double>[] peak =
+        [
+            new(1000, ipv.Abundance(2000, 0) * 200),
+            new(1000.50, ipv.Abundance(2000, 1) * 200),
+            new(1001, 0),
+            new(1001.5, ipv.Abundance(2000, 3) * 200),
+            new(1002, ipv.Abundance(2000, 4) * 200)
+        ];
+        Ion[] ion = [new(1000, 2), new(1000.5, 2), new(1001, 2)];
+        var cs = PepPre.BuildConstraints(peak, ion, e, ipv);
+        var (ws, es) = PepPre.SolveProblem(peak, ion, cs);
+        Assert.IsTrue(Math.Abs(ws[0] - 200) < 1e-4);
+        Assert.IsTrue(Math.Abs(ws[1]) < 1e-4);
+        Assert.IsTrue(Math.Abs(ws[2]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[0]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[1]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[2] - ipv.Abundance(2000, 2) * 200) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[3]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[4]) < 1e-4);
+    }
 }
