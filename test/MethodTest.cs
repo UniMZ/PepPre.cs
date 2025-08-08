@@ -6,11 +6,12 @@ using UniMZ.PepPre;
 [TestClass]
 public class MethodTest
 {
+    private readonly IsotopePatternVector ipv = PepPre.BuildIsotopePatternVector(5000, DefaultIsotopeTable.HCNOS,
+        PepPre.AverageFormulaPerAminoAcid(DefaultAminoAcidTable.All));
+
     [TestMethod]
     public void TestGenerateCandidate()
     {
-        var ipv = PepPre.BuildIsotopePatternVector(1000, DefaultIsotopeTable.HCNOS,
-            PepPre.AverageFormulaPerAminoAcid(DefaultAminoAcidTable.All));
         Peak<double>[] peak =
         [
             new(10, 1.0),
@@ -25,8 +26,6 @@ public class MethodTest
     [TestMethod]
     public void TestBuildConstraints()
     {
-        var ipv = PepPre.BuildIsotopePatternVector(1000, DefaultIsotopeTable.HCNOS,
-            PepPre.AverageFormulaPerAminoAcid(DefaultAminoAcidTable.All));
         const double e = 1e-2;
         Peak<double>[] peak =
         [
@@ -67,10 +66,8 @@ public class MethodTest
     }
 
     [TestMethod]
-    public void TestSolveProblem()
+    public void TestSolveProblem1()
     {
-        var ipv = PepPre.BuildIsotopePatternVector(5000, DefaultIsotopeTable.HCNOS,
-            PepPre.AverageFormulaPerAminoAcid(DefaultAminoAcidTable.All));
         const double e = 1e-2;
         Peak<double>[] peak =
         [
@@ -96,5 +93,30 @@ public class MethodTest
         Assert.IsTrue(Math.Abs(es[2]) < 1e-4);
         Assert.IsTrue(Math.Abs(es[3]) < 1e-4);
         Assert.IsTrue(Math.Abs(es[4] - ipv.Abundance(3000, 3) * 100) < 1e-4);
+    }
+
+    [TestMethod]
+    public void TestSolveProblem2()
+    {
+        const double e = 1e-2;
+        Peak<double>[] peak =
+        [
+            new(1000, ipv.Abundance(2000, 0) * 20),
+            new(1000.50, ipv.Abundance(2000, 1) * 20 + ipv.Abundance(2000, 0) * 100),
+            new(1001, ipv.Abundance(2000, 2) * 20 + ipv.Abundance(2000, 1) * 100),
+            new(1001.5, ipv.Abundance(2000, 3) * 20 + ipv.Abundance(2000, 2) * 100),
+            new(1002, ipv.Abundance(2000, 4) * 10 + ipv.Abundance(2000, 3) * 100)
+        ];
+        Ion[] ion = [new(1000, 2), new(1000.5, 2), new(1001, 2)];
+        var cs = PepPre.BuildConstraints(peak, ion, e, ipv);
+        var (ws, es) = PepPre.SolveProblem(peak, ion, cs);
+        Assert.IsTrue(Math.Abs(ws[0] - 20) < 1e-4);
+        Assert.IsTrue(Math.Abs(ws[1] - 100) < 1e-4);
+        Assert.IsTrue(Math.Abs(ws[2]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[0]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[1]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[2]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[3]) < 1e-4);
+        Assert.IsTrue(Math.Abs(es[4] - ipv.Abundance(2000, 4) * 10) < 1e-4);
     }
 }
